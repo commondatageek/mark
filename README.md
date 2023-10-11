@@ -1,6 +1,5 @@
 # Next Steps
 
-- Save the bookmark data in JSON or YAML format; not hardcoded
 - If you run the command without a name, open a fuzzy finder that looks at:
     - names, url
 - have a hierarchy of names

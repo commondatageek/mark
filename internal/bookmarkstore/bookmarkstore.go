@@ -1,13 +1,41 @@
 package bookmarkstore
 
 import (
+	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 
 	bmark "github.com/commondatageek/mark/internal/bookmark"
 )
 
 type BookmarkStore struct {
 	names map[string]*bmark.Bookmark
+}
+
+func Load(path string) (*BookmarkStore, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, fmt.Errorf("bookmarkstore.Load: %s", err)
+	}
+	defer f.Close()
+
+	s := New()
+	var b bmark.Bookmark
+
+	dec := json.NewDecoder(f)
+	for {
+		if err := dec.Decode(&b); err != nil {
+			if err == io.EOF {
+				break
+			} else {
+				return nil, fmt.Errorf("boookmarkstore.Load: cannot decode JSON: %s", err)
+			}
+		}
+		s.Add(b)
+	}
+
+	return s, nil
 }
 
 func New() *BookmarkStore {
