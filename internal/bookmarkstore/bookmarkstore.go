@@ -21,10 +21,10 @@ func Load(path string) (*BookmarkStore, error) {
 	defer f.Close()
 
 	s := New()
-	var b bmark.Bookmark
 
 	dec := json.NewDecoder(f)
 	for {
+		var b bmark.Bookmark
 		if err := dec.Decode(&b); err != nil {
 			if err == io.EOF {
 				break
