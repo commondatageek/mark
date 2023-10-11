@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
-	"strings"
+
+	store "github.com/commondatageek/mark/internal/bookmarkstore"
 
 	"github.com/pkg/browser"
 )
@@ -28,51 +28,8 @@ func main() {
 	}
 }
 
-func getBookmarks() *BookmarkStore {
-	s := NewBookmarkStore()
+func getBookmarks() *store.BookmarkStore {
+	s := store.New()
 
 	return s
-}
-
-func NewBookmarkStore() *BookmarkStore {
-	return &BookmarkStore{
-		names: make(map[string]*Bookmark),
-	}
-}
-
-type Bookmark struct {
-	Names []string
-	URL   string
-}
-
-func (b Bookmark) String() string {
-	return fmt.Sprintf("%s|%s", strings.Join(b.Names, ","), b.URL)
-}
-
-type BookmarkStore struct {
-	names map[string]*Bookmark
-}
-
-func (s *BookmarkStore) Add(b Bookmark) error {
-	// see if any of the names are already taken
-	for _, n := range b.Names {
-		if b, found := s.names[n]; found {
-			return fmt.Errorf("name '%s' already exists: %s", n, b)
-		}
-	}
-
-	// doesn't exist yet, let's add it
-	for _, n := range b.Names {
-		s.names[n] = &b
-	}
-
-	return nil
-}
-
-func (s *BookmarkStore) Get(name string) *Bookmark {
-	b, foundName := s.names[name]
-	if !foundName {
-		return nil
-	}
-	return b
 }
