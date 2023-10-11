@@ -6,10 +6,16 @@ import (
 )
 
 type Bookmark struct {
-	Names []string
-	URL   string
+	Names []string `json:"names"`
+	URL   string   `json:"url"`
 }
 
 func (b Bookmark) String() string {
-	return fmt.Sprintf("%s|%s", strings.Join(b.Names, ","), b.URL)
+	nameStrs := make([]string, len(b.Names))
+	for i := 0; i < len(nameStrs); i++ {
+		nameStrs[i] = fmt.Sprintf(`"%s"`, b.Names[i])
+	}
+	namesString := strings.Join(nameStrs, ", ")
+
+	return fmt.Sprintf(`Bookmark(Names: [%s], URL: "%s")`, namesString, b.URL)
 }
