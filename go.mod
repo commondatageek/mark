@@ -1,4 +1,4 @@
-module bookmarks
+module github.com/commondatageek/mark
 
 go 1.20
 
