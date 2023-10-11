@@ -32,7 +32,7 @@ func main() {
 	label := os.Args[1]
 
 	if b := bookmarks.Get(label); b != nil {
-		fmt.Printf("opening %s ...\n", b.Names[0])
+		fmt.Printf("opening: %s\n", b)
 		if err := browser.OpenURL(b.URL); err != nil {
 			fatal(err.Error(), ERR_BROWSER)
 		}
