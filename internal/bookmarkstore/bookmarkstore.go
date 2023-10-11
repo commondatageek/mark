@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"os"
 
 	bmark "github.com/commondatageek/mark/internal/bookmark"
 )
@@ -13,16 +12,10 @@ type BookmarkStore struct {
 	names map[string]*bmark.Bookmark
 }
 
-func Load(path string) (*BookmarkStore, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("bookmarkstore.Load: %s", err)
-	}
-	defer f.Close()
-
+func Load(r io.Reader) (*BookmarkStore, error) {
 	s := New()
 
-	dec := json.NewDecoder(f)
+	dec := json.NewDecoder(r)
 	for {
 		var b bmark.Bookmark
 		if err := dec.Decode(&b); err != nil {

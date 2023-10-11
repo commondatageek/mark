@@ -13,10 +13,11 @@ import (
 const (
 	SUCCESS            = 0
 	ERR_USAGE          = 1
-	ERR_LOAD_STORE     = 2
-	ERR_BROWSER        = 3
-	ERR_NAME_NOT_FOUND = 4
-	ERR_HOME_DIR       = 5
+	ERR_BOOKMARKS_FILE = 2
+	ERR_LOAD_STORE     = 3
+	ERR_BROWSER        = 4
+	ERR_NAME_NOT_FOUND = 5
+	ERR_HOME_DIR       = 6
 )
 
 func main() {
@@ -24,7 +25,14 @@ func main() {
 		fatal("usage: mark LABEL", ERR_USAGE)
 	}
 
-	bookmarks, err := store.Load(bookmarksPath())
+	path := bookmarksPath()
+	f, err := os.Open(path)
+	if err != nil {
+		fatal(fmt.Sprintf("could not open bookmarks file %s: %s", path, err), ERR_BOOKMARKS_FILE)
+	}
+	defer f.Close()
+
+	bookmarks, err := store.Load(f)
 	if err != nil {
 		fatal(err.Error(), ERR_LOAD_STORE)
 	}
