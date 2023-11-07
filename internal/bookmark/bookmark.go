@@ -16,10 +16,5 @@ func (b Bookmark) String() string {
 	namesString := "\"" + strings.Join(b.Names, "\", \"") + "\""
 	tagsString := "\"" + strings.Join(b.Tags, "\", \"") + "\""
 
-	return fmt.Sprintf(`Bookmark(
-	Names: [%s]
-	Tags: [%s]
-	URL: %s
-	Description: %s
-)`, namesString, tagsString, b.URL, b.Description)
+	return fmt.Sprintf("names: [%s]\n  tags: [%s]\n  url: %s", namesString, tagsString, b.URL)
 }

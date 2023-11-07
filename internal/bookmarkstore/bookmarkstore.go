@@ -6,6 +6,7 @@ import (
 	"io"
 
 	bmark "github.com/commondatageek/mark/internal/bookmark"
+	search "github.com/commondatageek/mark/internal/bookmarkstore/search"
 )
 
 type BookmarkStore struct {
@@ -59,4 +60,20 @@ func (s *BookmarkStore) Get(name string) *bmark.Bookmark {
 		return nil
 	}
 	return b
+}
+
+func (s *BookmarkStore) All() []*bmark.Bookmark {
+	list := make([]*bmark.Bookmark, 0, len(s.names))
+	for _, b := range s.names {
+		list = append(list, b)
+	}
+	return list
+}
+
+func (s *BookmarkStore) Search(query string, n int) ([]*bmark.Bookmark, error) {
+	results, err := search.Search(s.All(), query, n)
+	if err != nil {
+		return nil, fmt.Errorf("Search: %s", err)
+	}
+	return results, nil
 }
