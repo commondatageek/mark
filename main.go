@@ -59,6 +59,11 @@ func main() {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
 				os.Exit(1)
 			}
+
+			if err := save(bookmarks); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %s\n", err)
+				os.Exit(1)
+			}
 		case "add":
 			if len(os.Args) != 3 {
 				usage()
@@ -70,6 +75,11 @@ func main() {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
 				os.Exit(1)
 			}
+
+			if err := save(bookmarks); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %s\n", err)
+				os.Exit(1)
+			}
 		default:
 			usage()
 			os.Exit(1)
@@ -77,6 +87,20 @@ func main() {
 	}
 
 	os.Exit(0)
+}
+
+func save(bookmarks *store.BookmarkStore) error {
+	f, err := os.Create(bookmarksPath())
+	if err != nil {
+		return fmt.Errorf("save: %s", err)
+	}
+	defer f.Close()
+
+	if err := bookmarks.Save(f); err != nil {
+		return fmt.Errorf("save: %s", err)
+	}
+
+	return nil
 }
 
 func add(bookmarks *store.BookmarkStore, url string) error {
@@ -116,14 +140,6 @@ func add(bookmarks *store.BookmarkStore, url string) error {
 		return fmt.Errorf("add: %s", err)
 	}
 
-	f, err := os.Create(bookmarksPath())
-	if err != nil {
-		return fmt.Errorf("add: %s", err)
-	}
-	defer f.Close()
-
-	bookmarks.Save(f)
-
 	return nil
 }
 
@@ -133,6 +149,7 @@ func open(bookmarks *store.BookmarkStore, label string) error {
 		if err := browser.OpenURL(b.URL); err != nil {
 			return fmt.Errorf("go: %s", err)
 		}
+		b.AccessedTime = time.Now().UTC().Format(RFC3339)
 	} else {
 		return fmt.Errorf("unable to find a URL for '%s'", label)
 	}

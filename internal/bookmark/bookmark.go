@@ -12,6 +12,7 @@ type Bookmark struct {
 	Description  string   `json:"description,omitempty"`
 	CreatedTime  string   `json:"created_time,omitempty"`
 	ModifiedTime string   `json:"modified_time,omitempty"`
+	AccessedTime string   `json:"accessed_time,omitempty"`
 }
 
 func (b Bookmark) String() string {
