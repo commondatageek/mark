@@ -150,6 +150,7 @@ func open(bookmarks *store.BookmarkStore, label string) error {
 			return fmt.Errorf("go: %s", err)
 		}
 		b.AccessedTime = time.Now().UTC().Format(RFC3339)
+		b.AccessCount += 1
 	} else {
 		return fmt.Errorf("unable to find a URL for '%s'", label)
 	}
