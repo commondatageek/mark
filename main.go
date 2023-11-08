@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"strings"
+	"time"
 
 	bmark "github.com/commondatageek/mark/internal/bookmark"
 	store "github.com/commondatageek/mark/internal/bookmarkstore"
@@ -21,6 +22,8 @@ const (
 	ERR_BROWSER        = 4
 	ERR_NAME_NOT_FOUND = 5
 	ERR_HOME_DIR       = 6
+
+	RFC3339 = "2006-01-02T15:04:05Z07:00"
 )
 
 func main() {
@@ -99,12 +102,14 @@ func add(bookmarks *store.BookmarkStore, url string) error {
 		return fmt.Errorf("add: %s", err)
 	}
 
-	// timestamp := time.Now().UTC()
+	timestamp := time.Now().UTC()
 
 	b := bmark.Bookmark{
-		Names: names,
-		Tags:  tags,
-		URL:   url,
+		Names:        names,
+		Tags:         tags,
+		URL:          url,
+		CreatedTime:  timestamp.Format(RFC3339),
+		ModifiedTime: timestamp.Format(RFC3339),
 	}
 	err = bookmarks.Add(b)
 	if err != nil {
