@@ -63,8 +63,12 @@ func (s *BookmarkStore) Get(name string) *bmark.Bookmark {
 }
 
 func (s *BookmarkStore) All() []*bmark.Bookmark {
-	list := make([]*bmark.Bookmark, 0, len(s.names))
+	set := make(map[*bmark.Bookmark]bool)
 	for _, b := range s.names {
+		set[b] = true
+	}
+	list := make([]*bmark.Bookmark, 0, len(s.names))
+	for b, _ := range set {
 		list = append(list, b)
 	}
 	return list
