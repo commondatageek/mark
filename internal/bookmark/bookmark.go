@@ -6,10 +6,14 @@ import (
 )
 
 type Bookmark struct {
-	Names       []string `json:"names"`
-	Tags        []string `json:"tags"`
-	URL         string   `json:"url"`
-	Description string   `json:"description"`
+	Names        []string `json:"names"`
+	URL          string   `json:"url"`
+	Tags         []string `json:"tags,omitempty"`
+	Description  string   `json:"description,omitempty"`
+	CreatedTime  string   `json:"created_time,omitempty"`
+	ModifiedTime string   `json:"modified_time,omitempty"`
+	AccessedTime string   `json:"accessed_time,omitempty"`
+	AccessCount  int      `json:"access_count,omitempty"`
 }
 
 func (b Bookmark) String() string {

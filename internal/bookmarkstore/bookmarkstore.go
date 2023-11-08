@@ -17,6 +17,7 @@ func Load(r io.Reader) (*BookmarkStore, error) {
 	s := New()
 
 	dec := json.NewDecoder(r)
+	// TODO: can we just use a `for dec.More()` here instead of checking for io.EOF?
 	for {
 		var b bmark.Bookmark
 		if err := dec.Decode(&b); err != nil {
@@ -30,6 +31,17 @@ func Load(r io.Reader) (*BookmarkStore, error) {
 	}
 
 	return s, nil
+}
+
+func (s *BookmarkStore) Save(w io.Writer) error {
+	enc := json.NewEncoder(w)
+	for _, b := range s.All() {
+		err := enc.Encode(b)
+		if err != nil {
+			return fmt.Errorf("Save: %s", err)
+		}
+	}
+	return nil
 }
 
 func New() *BookmarkStore {

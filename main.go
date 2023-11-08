@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strings"
+	"time"
 
+	bmark "github.com/commondatageek/mark/internal/bookmark"
 	store "github.com/commondatageek/mark/internal/bookmarkstore"
 
 	"github.com/pkg/browser"
@@ -19,6 +22,8 @@ const (
 	ERR_BROWSER        = 4
 	ERR_NAME_NOT_FOUND = 5
 	ERR_HOME_DIR       = 6
+
+	RFC3339 = "2006-01-02T15:04:05Z07:00"
 )
 
 func main() {
@@ -42,13 +47,40 @@ func main() {
 			os.Exit(1)
 		}
 	} else {
-		if os.Args[1] == "go" {
-			err := open(bookmarks, os.Args[2])
+		switch os.Args[1] {
+		case "go":
+			if len(os.Args) != 3 {
+				usage()
+				os.Exit(1)
+			}
+			url := os.Args[2]
+			err := open(bookmarks, url)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
 				os.Exit(1)
 			}
-		} else {
+
+			if err := save(bookmarks); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %s\n", err)
+				os.Exit(1)
+			}
+		case "add":
+			if len(os.Args) != 3 {
+				usage()
+				os.Exit(1)
+			}
+			url := os.Args[2]
+			err := add(bookmarks, url)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error: %s\n", err)
+				os.Exit(1)
+			}
+
+			if err := save(bookmarks); err != nil {
+				fmt.Fprintf(os.Stderr, "error: %s\n", err)
+				os.Exit(1)
+			}
+		default:
 			usage()
 			os.Exit(1)
 		}
@@ -57,12 +89,68 @@ func main() {
 	os.Exit(0)
 }
 
+func save(bookmarks *store.BookmarkStore) error {
+	f, err := os.Create(bookmarksPath())
+	if err != nil {
+		return fmt.Errorf("save: %s", err)
+	}
+	defer f.Close()
+
+	if err := bookmarks.Save(f); err != nil {
+		return fmt.Errorf("save: %s", err)
+	}
+
+	return nil
+}
+
+func add(bookmarks *store.BookmarkStore, url string) error {
+	var getCommaSeparatedList = func(prompt string) ([]string, error) {
+		inputs, err := getInput(prompt)
+		if err != nil {
+			return nil, fmt.Errorf("getCommaSeparatedList: %s", err)
+		}
+		inputsList := strings.Split(inputs, ",")
+		for i := range inputsList {
+			inputsList[i] = strings.TrimSpace(inputsList[i])
+		}
+		return inputsList, nil
+	}
+
+	names, err := getCommaSeparatedList("names")
+	if err != nil {
+		return fmt.Errorf("add: %s", err)
+	}
+
+	tags, err := getCommaSeparatedList("tags")
+	if err != nil {
+		return fmt.Errorf("add: %s", err)
+	}
+
+	timestamp := time.Now().UTC()
+
+	b := bmark.Bookmark{
+		Names:        names,
+		Tags:         tags,
+		URL:          url,
+		CreatedTime:  timestamp.Format(RFC3339),
+		ModifiedTime: timestamp.Format(RFC3339),
+	}
+	err = bookmarks.Add(b)
+	if err != nil {
+		return fmt.Errorf("add: %s", err)
+	}
+
+	return nil
+}
+
 func open(bookmarks *store.BookmarkStore, label string) error {
 	if b := bookmarks.Get(label); b != nil {
 		fmt.Printf("opening: %s\n", b)
 		if err := browser.OpenURL(b.URL); err != nil {
 			return fmt.Errorf("go: %s", err)
 		}
+		b.AccessedTime = time.Now().UTC().Format(RFC3339)
+		b.AccessCount += 1
 	} else {
 		return fmt.Errorf("unable to find a URL for '%s'", label)
 	}
@@ -84,9 +172,10 @@ func usage() {
 }
 
 func search(bookmarks *store.BookmarkStore) error {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print("query: ")
-	label, _ := reader.ReadString('\n')
+	label, err := getInput("query")
+	if err != nil {
+		return fmt.Errorf("search: %s", err)
+	}
 
 	results, err := bookmarks.Search(label, 5)
 	if err != nil {
@@ -110,4 +199,14 @@ func homeDir() string {
 
 func bookmarksPath() string {
 	return path.Join(homeDir(), ".bookmarks.jsonl")
+}
+
+func getInput(prompt string) (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Printf("%s: ", prompt)
+	result, err := reader.ReadString('\n')
+	if err != nil {
+		return result, fmt.Errorf("getInput: %s", err)
+	}
+	return result, nil
 }
