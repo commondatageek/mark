@@ -7,9 +7,9 @@ import (
 
 type Bookmark struct {
 	Names       []string `json:"names"`
-	Tags        []string `json:"tags"`
 	URL         string   `json:"url"`
-	Description string   `json:"description"`
+	Tags        []string `json:"tags,omitempty"`
+	Description string   `json:"description,omitempty"`
 }
 
 func (b Bookmark) String() string {
