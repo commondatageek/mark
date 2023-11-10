@@ -22,12 +22,14 @@ const (
 	ERR_BROWSER        = 4
 	ERR_NAME_NOT_FOUND = 5
 	ERR_HOME_DIR       = 6
+	ERR_OTHER          = 7
 
 	RFC3339 = "2006-01-02T15:04:05Z07:00"
 )
 
 func main() {
 	path := bookmarksPath()
+
 	f, err := os.Open(path)
 	if err != nil {
 		fatal(fmt.Sprintf("could not open bookmarks file %s: %s", path, err), ERR_BOOKMARKS_FILE)
@@ -44,49 +46,49 @@ func main() {
 		err := search(bookmarks)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error: %s\n", err)
-			os.Exit(1)
+			os.Exit(ERR_OTHER)
 		}
 	} else {
 		switch os.Args[1] {
 		case "go":
 			if len(os.Args) != 3 {
 				usage()
-				os.Exit(1)
+				os.Exit(ERR_USAGE)
 			}
 			url := os.Args[2]
 			err := open(bookmarks, url)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
-				os.Exit(1)
+				os.Exit(ERR_OTHER)
 			}
 
 			if err := save(bookmarks); err != nil {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
-				os.Exit(1)
+				os.Exit(ERR_OTHER)
 			}
 		case "add":
 			if len(os.Args) != 3 {
 				usage()
-				os.Exit(1)
+				os.Exit(ERR_USAGE)
 			}
 			url := os.Args[2]
 			err := add(bookmarks, url)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
-				os.Exit(1)
+				os.Exit(ERR_OTHER)
 			}
 
 			if err := save(bookmarks); err != nil {
 				fmt.Fprintf(os.Stderr, "error: %s\n", err)
-				os.Exit(1)
+				os.Exit(ERR_OTHER)
 			}
 		default:
 			usage()
-			os.Exit(1)
+			os.Exit(ERR_USAGE)
 		}
 	}
 
-	os.Exit(0)
+	os.Exit(SUCCESS)
 }
 
 func save(bookmarks *store.BookmarkStore) error {
