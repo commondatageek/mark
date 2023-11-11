@@ -2,7 +2,9 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path"
 	"strings"
@@ -30,15 +32,22 @@ const (
 func main() {
 	path := bookmarksPath()
 
-	f, err := os.Open(path)
-	if err != nil {
-		fatal(fmt.Sprintf("could not open bookmarks file %s: %s", path, err), ERR_BOOKMARKS_FILE)
-	}
-	defer f.Close()
+	var bookmarks *store.BookmarkStore
 
-	bookmarks, err := store.Load(f)
-	if err != nil {
-		fatal(err.Error(), ERR_LOAD_STORE)
+	if f, err := os.Open(path); err != nil {
+		// if there is no bookmarks file, create an empty BookmarkStore
+		if errors.Is(err, fs.ErrNotExist) {
+			bookmarks = store.New()
+		} else {
+			fatal(fmt.Sprintf("could not open bookmarks file %s: %s", path, err), ERR_BOOKMARKS_FILE)
+		}
+	} else {
+		// if there is a bookmarks file, read it
+		defer f.Close()
+		bookmarks, err = store.Load(f)
+		if err != nil {
+			fatal(err.Error(), ERR_LOAD_STORE)
+		}
 	}
 
 	if len(os.Args) == 1 {
