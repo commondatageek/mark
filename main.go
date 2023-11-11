@@ -139,7 +139,7 @@ func add(items *itemstore.ItemStore, url string) error {
 
 	timestamp := time.Now().UTC()
 
-	b := item.Item{
+	b := item.ItemV1{
 		Names:        names,
 		Tags:         tags,
 		URL:          url,

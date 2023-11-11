@@ -17,7 +17,7 @@ func TestLoadWarnMalformed(t *testing.T) {
 
 func TestGetMultipleNamesSingleItem(t *testing.T) {
 	s := New()
-	b := item.Item{
+	b := item.ItemV1{
 		Names: []string{"a", "b"},
 		URL:   "https://example.com",
 	}
@@ -30,11 +30,11 @@ func TestGetMultipleNamesSingleItem(t *testing.T) {
 
 func TestAddDuplicateNamesFails(t *testing.T) {
 	s := New()
-	b1 := item.Item{
+	b1 := item.ItemV1{
 		Names: []string{"a", "b"},
 		URL:   "https://example.com",
 	}
-	b2 := item.Item{
+	b2 := item.ItemV1{
 		Names: []string{"b", "c"},
 		URL:   "https://otherexample.com",
 	}

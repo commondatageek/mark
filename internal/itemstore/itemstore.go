@@ -10,7 +10,7 @@ import (
 )
 
 type ItemStore struct {
-	names map[string]*item.Item
+	names map[string]*item.ItemV1
 }
 
 func Load(r io.Reader) (*ItemStore, error) {
@@ -19,7 +19,7 @@ func Load(r io.Reader) (*ItemStore, error) {
 	dec := json.NewDecoder(r)
 	// TODO: can we just use a `for dec.More()` here instead of checking for io.EOF?
 	for {
-		var b item.Item
+		var b item.ItemV1
 		if err := dec.Decode(&b); err != nil {
 			if err == io.EOF {
 				break
@@ -46,11 +46,11 @@ func (s *ItemStore) Save(w io.Writer) error {
 
 func New() *ItemStore {
 	return &ItemStore{
-		names: make(map[string]*item.Item),
+		names: make(map[string]*item.ItemV1),
 	}
 }
 
-func (s *ItemStore) Add(b item.Item) error {
+func (s *ItemStore) Add(b item.ItemV1) error {
 	// see if any of the names are already taken
 	for _, n := range b.Names {
 		if b, found := s.names[n]; found {
@@ -66,7 +66,7 @@ func (s *ItemStore) Add(b item.Item) error {
 	return nil
 }
 
-func (s *ItemStore) Get(name string) *item.Item {
+func (s *ItemStore) Get(name string) *item.ItemV1 {
 	b, foundName := s.names[name]
 	if !foundName {
 		return nil
@@ -74,19 +74,19 @@ func (s *ItemStore) Get(name string) *item.Item {
 	return b
 }
 
-func (s *ItemStore) All() []*item.Item {
-	set := make(map[*item.Item]bool)
+func (s *ItemStore) All() []*item.ItemV1 {
+	set := make(map[*item.ItemV1]bool)
 	for _, b := range s.names {
 		set[b] = true
 	}
-	list := make([]*item.Item, 0, len(s.names))
+	list := make([]*item.ItemV1, 0, len(s.names))
 	for b := range set {
 		list = append(list, b)
 	}
 	return list
 }
 
-func (s *ItemStore) Search(query string, n int) ([]*item.Item, error) {
+func (s *ItemStore) Search(query string, n int) ([]*item.ItemV1, error) {
 	results, err := search.Search(s.All(), query, n)
 	if err != nil {
 		return nil, fmt.Errorf("Search: %s", err)

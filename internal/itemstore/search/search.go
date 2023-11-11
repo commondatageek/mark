@@ -11,7 +11,7 @@ import (
 
 const MinimumNGramLength = 3
 
-func Search(items []*item.Item, q string, n int) ([]*item.Item, error) {
+func Search(items []*item.ItemV1, q string, n int) ([]*item.ItemV1, error) {
 	// build and query index
 	idx := build(items)
 	results := query(idx, q)
@@ -26,7 +26,7 @@ func Search(items []*item.Item, q string, n int) ([]*item.Item, error) {
 	return nil, fmt.Errorf("Search: n must be >= 0 (received %d)", n)
 }
 
-type Index map[string][]*item.Item
+type Index map[string][]*item.ItemV1
 
 // ngrams returns all ngrams (possible substrings) of length n in s.
 func ngrams(n int, s string) []string {
@@ -38,7 +38,7 @@ func ngrams(n int, s string) []string {
 	return grams
 }
 
-func itemToStrings(i *item.Item) []string {
+func itemToStrings(i *item.ItemV1) []string {
 	wordStrings := make([]string, 0)
 	wordStrings = append(wordStrings, stringToWords(i.URL)...)
 	wordStrings = append(wordStrings, stringToWords(i.Description)...)
@@ -57,10 +57,10 @@ func stringToWords(s string) []string {
 	return words
 }
 
-func build(items []*item.Item) Index {
+func build(items []*item.ItemV1) Index {
 	idx := make(Index)
 	for _, i := range items {
-		var distinctI item.Item = *i
+		var distinctI item.ItemV1 = *i
 		itemStrings := itemToStrings(&distinctI)
 		for _, s := range itemStrings {
 			s = strings.ToLower(s)
@@ -76,8 +76,8 @@ func build(items []*item.Item) Index {
 	return idx
 }
 
-func query(idx Index, query string) []*item.Item {
-	results := make([]*item.Item, 0)
+func query(idx Index, query string) []*item.ItemV1 {
+	results := make([]*item.ItemV1, 0)
 	words := stringToWords(query)
 	for _, s := range words {
 		for n := MinimumNGramLength; n <= len(s); n++ {
@@ -99,23 +99,23 @@ func query(idx Index, query string) []*item.Item {
 	return sorted
 }
 
-func count(items []*item.Item) map[*item.Item]int {
-	counts := make(map[*item.Item]int)
+func count(items []*item.ItemV1) map[*item.ItemV1]int {
+	counts := make(map[*item.ItemV1]int)
 	for _, i := range items {
-		var i *item.Item = i
+		var i *item.ItemV1 = i
 		counts[i]++
 	}
 	return counts
 }
 
-func sortByCount(counts map[*item.Item]int) []*item.Item {
+func sortByCount(counts map[*item.ItemV1]int) []*item.ItemV1 {
 	type ItemCount struct {
-		Item  *item.Item
+		Item  *item.ItemV1
 		Count int
 	}
 	countSlice := make([]ItemCount, 0)
 	for k, v := range counts {
-		var k *item.Item = k
+		var k *item.ItemV1 = k
 		var v int = v
 		countSlice = append(countSlice, ItemCount{k, v})
 	}
@@ -131,7 +131,7 @@ func sortByCount(counts map[*item.Item]int) []*item.Item {
 		}
 		panic("sortByCount: a and b aren't comparable")
 	})
-	result := make([]*item.Item, len(countSlice))
+	result := make([]*item.ItemV1, len(countSlice))
 	for i := range countSlice {
 		result[i] = countSlice[i].Item
 	}

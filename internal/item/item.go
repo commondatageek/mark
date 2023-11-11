@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-type Item struct {
+type ItemV1 struct {
 	Names        []string `json:"names"`
 	URL          string   `json:"url"`
 	Tags         []string `json:"tags,omitempty"`
@@ -16,7 +16,7 @@ type Item struct {
 	AccessCount  int      `json:"access_count,omitempty"`
 }
 
-func (i Item) String() string {
+func (i ItemV1) String() string {
 	namesString := "\"" + strings.Join(i.Names, "\", \"") + "\""
 	tagsString := "\"" + strings.Join(i.Tags, "\", \"") + "\""
 
