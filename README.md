@@ -17,7 +17,7 @@ It should have the following format, one item per line:
 You'll want to add good tags and names, as it will help immensely when you are searching for something 6 months from now.
 
 
-### Search your bookmark database
+### Search your item database
 
 The search functionality will perform indexing on your database and match all
 the substrings of the words you type in against the substrings in the words in your items
@@ -32,5 +32,5 @@ mark
 
 Open a specific item by giving one of its names:
 ```bash
-mark my/cool/bookmark/name
+mark my/cool/item/name
 ```

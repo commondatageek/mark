@@ -1,25 +1,25 @@
-package bookmarkstore
+package itemstore
 
 import (
 	"encoding/json"
 	"fmt"
 	"io"
 
-	bmark "github.com/commondatageek/mark/internal/bookmark"
-	search "github.com/commondatageek/mark/internal/bookmarkstore/search"
+	"github.com/commondatageek/mark/internal/item"
+	"github.com/commondatageek/mark/internal/itemstore/search"
 )
 
-type BookmarkStore struct {
-	names map[string]*bmark.Bookmark
+type ItemStore struct {
+	names map[string]*item.Item
 }
 
-func Load(r io.Reader) (*BookmarkStore, error) {
+func Load(r io.Reader) (*ItemStore, error) {
 	s := New()
 
 	dec := json.NewDecoder(r)
 	// TODO: can we just use a `for dec.More()` here instead of checking for io.EOF?
 	for {
-		var b bmark.Bookmark
+		var b item.Item
 		if err := dec.Decode(&b); err != nil {
 			if err == io.EOF {
 				break
@@ -33,7 +33,7 @@ func Load(r io.Reader) (*BookmarkStore, error) {
 	return s, nil
 }
 
-func (s *BookmarkStore) Save(w io.Writer) error {
+func (s *ItemStore) Save(w io.Writer) error {
 	enc := json.NewEncoder(w)
 	for _, b := range s.All() {
 		err := enc.Encode(b)
@@ -44,13 +44,13 @@ func (s *BookmarkStore) Save(w io.Writer) error {
 	return nil
 }
 
-func New() *BookmarkStore {
-	return &BookmarkStore{
-		names: make(map[string]*bmark.Bookmark),
+func New() *ItemStore {
+	return &ItemStore{
+		names: make(map[string]*item.Item),
 	}
 }
 
-func (s *BookmarkStore) Add(b bmark.Bookmark) error {
+func (s *ItemStore) Add(b item.Item) error {
 	// see if any of the names are already taken
 	for _, n := range b.Names {
 		if b, found := s.names[n]; found {
@@ -66,7 +66,7 @@ func (s *BookmarkStore) Add(b bmark.Bookmark) error {
 	return nil
 }
 
-func (s *BookmarkStore) Get(name string) *bmark.Bookmark {
+func (s *ItemStore) Get(name string) *item.Item {
 	b, foundName := s.names[name]
 	if !foundName {
 		return nil
@@ -74,19 +74,19 @@ func (s *BookmarkStore) Get(name string) *bmark.Bookmark {
 	return b
 }
 
-func (s *BookmarkStore) All() []*bmark.Bookmark {
-	set := make(map[*bmark.Bookmark]bool)
+func (s *ItemStore) All() []*item.Item {
+	set := make(map[*item.Item]bool)
 	for _, b := range s.names {
 		set[b] = true
 	}
-	list := make([]*bmark.Bookmark, 0, len(s.names))
+	list := make([]*item.Item, 0, len(s.names))
 	for b := range set {
 		list = append(list, b)
 	}
 	return list
 }
 
-func (s *BookmarkStore) Search(query string, n int) ([]*bmark.Bookmark, error) {
+func (s *ItemStore) Search(query string, n int) ([]*item.Item, error) {
 	results, err := search.Search(s.All(), query, n)
 	if err != nil {
 		return nil, fmt.Errorf("Search: %s", err)
