@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 
-	b "github.com/commondatageek/mark/internal/bookmark"
+	"github.com/commondatageek/mark/internal/item"
 )
 
 const MinimumNGramLength = 3
 
-func Search(items []*b.Bookmark, q string, n int) ([]*b.Bookmark, error) {
+func Search(items []*item.ItemV1, q string, n int) ([]*item.ItemV1, error) {
 	// build and query index
 	idx := build(items)
 	results := query(idx, q)
@@ -26,7 +26,7 @@ func Search(items []*b.Bookmark, q string, n int) ([]*b.Bookmark, error) {
 	return nil, fmt.Errorf("Search: n must be >= 0 (received %d)", n)
 }
 
-type Index map[string][]*b.Bookmark
+type Index map[string][]*item.ItemV1
 
 // ngrams returns all ngrams (possible substrings) of length n in s.
 func ngrams(n int, s string) []string {
@@ -38,14 +38,14 @@ func ngrams(n int, s string) []string {
 	return grams
 }
 
-func itemToStrings(item *b.Bookmark) []string {
+func itemToStrings(i *item.ItemV1) []string {
 	wordStrings := make([]string, 0)
-	wordStrings = append(wordStrings, stringToWords(item.URL)...)
-	wordStrings = append(wordStrings, stringToWords(item.Description)...)
-	for _, n := range item.Names {
+	wordStrings = append(wordStrings, stringToWords(i.URL)...)
+	wordStrings = append(wordStrings, stringToWords(i.Description)...)
+	for _, n := range i.Names {
 		wordStrings = append(wordStrings, stringToWords(n)...)
 	}
-	for _, n := range item.Tags {
+	for _, n := range i.Tags {
 		wordStrings = append(wordStrings, stringToWords(n)...)
 	}
 	return wordStrings
@@ -57,18 +57,18 @@ func stringToWords(s string) []string {
 	return words
 }
 
-func build(items []*b.Bookmark) Index {
+func build(items []*item.ItemV1) Index {
 	idx := make(Index)
-	for _, item := range items {
-		var i b.Bookmark = *item
-		itemStrings := itemToStrings(&i)
+	for _, i := range items {
+		var distinctI item.ItemV1 = *i
+		itemStrings := itemToStrings(&distinctI)
 		for _, s := range itemStrings {
 			s = strings.ToLower(s)
 			for n := MinimumNGramLength; n <= len(s); n++ {
 				// for n := MinimumNGramLength; n <= MaximumNGramLength; n++ {
 				grams := unique(ngrams(n, s))
 				for _, g := range grams {
-					idx[g] = append(idx[g], &i)
+					idx[g] = append(idx[g], &distinctI)
 				}
 			}
 		}
@@ -76,8 +76,8 @@ func build(items []*b.Bookmark) Index {
 	return idx
 }
 
-func query(idx Index, query string) []*b.Bookmark {
-	results := make([]*b.Bookmark, 0)
+func query(idx Index, query string) []*item.ItemV1 {
+	results := make([]*item.ItemV1, 0)
 	words := stringToWords(query)
 	for _, s := range words {
 		for n := MinimumNGramLength; n <= len(s); n++ {
@@ -99,27 +99,27 @@ func query(idx Index, query string) []*b.Bookmark {
 	return sorted
 }
 
-func count(items []*b.Bookmark) map[*b.Bookmark]int {
-	counts := make(map[*b.Bookmark]int)
+func count(items []*item.ItemV1) map[*item.ItemV1]int {
+	counts := make(map[*item.ItemV1]int)
 	for _, i := range items {
-		var i *b.Bookmark = i
+		var i *item.ItemV1 = i
 		counts[i]++
 	}
 	return counts
 }
 
-func sortByCount(counts map[*b.Bookmark]int) []*b.Bookmark {
-	type BookmarkCount struct {
-		Item  *b.Bookmark
+func sortByCount(counts map[*item.ItemV1]int) []*item.ItemV1 {
+	type ItemCount struct {
+		Item  *item.ItemV1
 		Count int
 	}
-	countSlice := make([]BookmarkCount, 0)
+	countSlice := make([]ItemCount, 0)
 	for k, v := range counts {
-		var k *b.Bookmark = k
+		var k *item.ItemV1 = k
 		var v int = v
-		countSlice = append(countSlice, BookmarkCount{k, v})
+		countSlice = append(countSlice, ItemCount{k, v})
 	}
-	slices.SortFunc(countSlice, func(a, b BookmarkCount) int {
+	slices.SortFunc(countSlice, func(a, b ItemCount) int {
 		if a.Count > b.Count {
 			return 1
 		}
@@ -131,7 +131,7 @@ func sortByCount(counts map[*b.Bookmark]int) []*b.Bookmark {
 		}
 		panic("sortByCount: a and b aren't comparable")
 	})
-	result := make([]*b.Bookmark, len(countSlice))
+	result := make([]*item.ItemV1, len(countSlice))
 	for i := range countSlice {
 		result[i] = countSlice[i].Item
 	}

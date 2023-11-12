@@ -1,11 +1,11 @@
-package bookmark
+package item
 
 import (
 	"fmt"
 	"strings"
 )
 
-type Bookmark struct {
+type ItemV1 struct {
 	Names        []string `json:"names"`
 	URL          string   `json:"url"`
 	Tags         []string `json:"tags,omitempty"`
@@ -16,9 +16,9 @@ type Bookmark struct {
 	AccessCount  int      `json:"access_count,omitempty"`
 }
 
-func (b Bookmark) String() string {
-	namesString := "\"" + strings.Join(b.Names, "\", \"") + "\""
-	tagsString := "\"" + strings.Join(b.Tags, "\", \"") + "\""
+func (i ItemV1) String() string {
+	namesString := "\"" + strings.Join(i.Names, "\", \"") + "\""
+	tagsString := "\"" + strings.Join(i.Tags, "\", \"") + "\""
 
-	return fmt.Sprintf("names: [%s]\n  tags: [%s]\n  url: %s", namesString, tagsString, b.URL)
+	return fmt.Sprintf("names: [%s]\n  tags: [%s]\n  url: %s", namesString, tagsString, i.URL)
 }

@@ -1,10 +1,10 @@
-package bookmarkstore
+package itemstore
 
 import (
 	"strings"
 	"testing"
 
-	"github.com/commondatageek/mark/internal/bookmark"
+	"github.com/commondatageek/mark/internal/item"
 )
 
 func TestLoad(t *testing.T) {
@@ -15,9 +15,9 @@ func TestLoadWarnMalformed(t *testing.T) {
 	t.Skip("not imiplemented")
 }
 
-func TestGetMultipleNamesSingleBookmark(t *testing.T) {
+func TestGetMultipleNamesSingleItem(t *testing.T) {
 	s := New()
-	b := bookmark.Bookmark{
+	b := item.ItemV1{
 		Names: []string{"a", "b"},
 		URL:   "https://example.com",
 	}
@@ -30,11 +30,11 @@ func TestGetMultipleNamesSingleBookmark(t *testing.T) {
 
 func TestAddDuplicateNamesFails(t *testing.T) {
 	s := New()
-	b1 := bookmark.Bookmark{
+	b1 := item.ItemV1{
 		Names: []string{"a", "b"},
 		URL:   "https://example.com",
 	}
-	b2 := bookmark.Bookmark{
+	b2 := item.ItemV1{
 		Names: []string{"b", "c"},
 		URL:   "https://otherexample.com",
 	}
