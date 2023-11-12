@@ -1,5 +1,55 @@
 # mark
 
+## Installation
+
+There are three ways to install `mark`:
+- using `go install`
+- use a pre-built binary
+- build `mark` from scratch
+
+
+### Using `go install`
+
+If you [already have Go installed], then installing `mark` is as simple as:
+
+```bash
+go install github.com/commondatageek/mark
+```
+
+You'll then need to make sure that your `GOPATH` (typically `$HOME/go` by default) is on your `PATH` variable.
+
+
+### Use a Pre-built Binary
+
+1. Download the appropriate pre-built binary from the [Releases](https://github.com/commondatageek/mark/releases/) page.
+2. Extract the `mark` file from the tar archive.  For example:
+
+```bash
+tar -xvf mark-v0.6.1-darwin-amd64.tar.gz
+```
+
+3. Move the `mark` binary into your preferred location on your path.  For example:
+
+```bash
+sudo mv ./mark /usr/local/bin
+```
+
+
+### Build `mark` from Scratch
+
+1. [Install](https://go.dev/doc/install) Go
+2. Clone the `mark` repository to your local machine
+3. From the `mark` repository directory, run `go build .`
+    - (Alternatively, if you have `just` task runner [installed](https://just.systems/man/en/chapter_5.html), you can run `just build`)
+4. Move the newly built `mark` binary to some directory on your `PATH`. For example:
+
+```bash
+sudo mv ./mark /usr/local/bin
+```
+
+In the future, we'll have a [devcontainer](https://code.visualstudio.com/docs/devcontainers/containers) that will make this easier.
+
+
 ## Usage
 
 ### The Database File
@@ -34,3 +84,4 @@ Open a specific item by giving one of its names:
 ```bash
 mark my/cool/item/name
 ```
+
