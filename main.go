@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -27,9 +28,20 @@ const (
 	ERR_OTHER          = 7
 
 	RFC3339 = "2006-01-02T15:04:05Z07:00"
+
+	VERSION = "0.7.1"
 )
 
 func main() {
+	var showVersion bool
+	flag.BoolVar(&showVersion, "version", false, "print version and exit")
+	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("mark %s\n", VERSION)
+		os.Exit(SUCCESS)
+	}
+
 	path := itemsPath()
 
 	var items *itemstore.ItemStore

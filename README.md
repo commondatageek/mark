@@ -2,13 +2,28 @@
 
 ## Installation
 
-There are three ways to install `mark`:
-- using `go install`
-- use a pre-built binary
-- build `mark` from scratch
+There are four ways to install `mark`, given here in order of simplicity:
+
+1. Download and run the [installer script](https://raw.githubusercontent.com/commondatageek/mark/main/install.sh)
+2. Use `go install`
+3. Use a pre-built binary
+4. Build `mark` from scratch
 
 
-### Using `go install`
+### Download and Run the Installer
+
+First, do yourself a favor and just go check out the
+[installer script](https://raw.githubusercontent.com/commondatageek/mark/main/install.sh)
+to make sure you're okay with it.  You owe it to yourself.
+
+If so, you can run the following:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/commondatageek/mark/main/install.sh | bash -s
+```
+
+
+### Use `go install`
 
 If you [already have Go installed], then installing `mark` is as simple as:
 
