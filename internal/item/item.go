@@ -22,3 +22,17 @@ func (i ItemV1) String() string {
 
 	return fmt.Sprintf("names: [%s]\n  tags: [%s]\n  url: %s", namesString, tagsString, i.URL)
 }
+
+type ItemV2 struct {
+	Version      int      `json:"version"`
+	Path         string   `json:"path"`
+	Title        string   `json:"title"`
+	URL          string   `json:"url"`
+	Aliases      []string `json:"aliases,omitempty"`
+	Tags         []string `json:"tags,omitempty"`
+	Description  string   `json:"description,omitempty"`
+	CreatedTime  string   `json:"created_time,omitempty"`
+	ModifiedTime string   `json:"modified_time,omitempty"`
+	AccessedTime string   `json:"accessed_time,omitempty"`
+	AccessCount  int      `json:"access_count,omitempty"`
+}

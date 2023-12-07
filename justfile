@@ -4,3 +4,4 @@ default:
 
 build:
     go build .
+    go build -o ./bin/ ./cmd/...
